@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字世界音视频展示台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --accent-color: #00ffff;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+        }
+
+        body {
+            background: var(--primary-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .sound-wave {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .playing .sound-wave {
+            animation: sound-wave 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes sound-wave {
+            0% { transform: scale(1); opacity: 0.7; }
+            100% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: var(--accent-color);
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .download-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .download-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sfx-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .sfx-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 25px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="py-12 px-4">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                <i class="fas fa-compact-disc mr-4"></i>
+                数字世界音视频展示台
+            </h1>
+            <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-4">
+                Digital World Audio & Video Showcase
+            </p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pb-12">
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-12">
+            <div class="glass-card p-3 inline-flex rounded-full gap-2">
+                <button class="tab-button px-8 py-4 rounded-full font-medium active" data-tab="sfx">
+                    <i class="fas fa-music mr-2"></i>音效库
+                </button>
+                <button class="tab-button px-8 py-4 rounded-full font-medium" data-tab="bgm">
+                    <i class="fas fa-headphones mr-2"></i>BGM合集
+                </button>
+                <button class="tab-button px-8 py-4 rounded-full font-medium" data-tab="music">
+                    <i class="fas fa-play-circle mr-2"></i>音乐作品
+                </button>
+                <button class="tab-button px-8 py-4 rounded-full font-medium" data-tab="video">
+                    <i class="fas fa-video mr-2"></i>MV视频
+                </button>
+            </div>
+        </div>
+
+        <!-- SFX Tab -->
+        <div id="sfx-tab" class="tab-content active">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                <!-- 环境音效 -->
+                <div class="glass-card p-8">
+                    <div class="category-icon bg-gradient-to-br from-blue-500 to-cyan-500">
+                        <i class="fas fa-mountain text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-8">环境音效</h3>
+                    <div class="sfx-grid">
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/9babd296-a909-43a3-be45-5cf2f14d23a5.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">数据碎裂声</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="sound-wave"></div>
+                                    <button class="download-btn text-gray-400 hover:text-white transition-colors" data-filename="数据碎裂声.mp3">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">平台崩塌时的尖锐数字音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/ba2999c6-947f-459e-aac6-a4fa11d870e2.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">电弧</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="sound-wave"></div>
+                                    <button class="download-btn text-gray-400 hover:text-white transition-colors" data-filename="电弧.mp3">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">裸露数据线缆间的危险电弧</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: E003</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/728eaddd-686d-4518-ada8-d4c64b768181.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">数据噪音</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="sound-wave"></div>
+                                    <button class="download-btn text-gray-400 hover:text-white transition-colors" data-filename="数据噪音.mp3">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">触碰数据噪音池的刺耳音效</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S001</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/37d998e1-ba7f-45d6-9fd0-38699cf08e5b.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">代码雾气</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="sound-wave"></div>
+                                    <button class="download-btn text-gray-400 hover:text-white transition-colors" data-filename="代码雾气.mp3">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">编程语言关键词的微弱耳语</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S002</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/881374f2-a0df-4042-81e7-2b2e99b467a1.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">广告弹窗</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="sound-wave"></div>
+                                    <button class="download-btn text-gray-400 hover:text-white transition-colors" data-filename="广告弹窗.mp3">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">烦人的广告弹窗音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6bc43549-d442-4e48-a929-d123d87d80e4.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">数据植被</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">穿过数据植被的电子质感音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/e8ee041a-d2cf-4b66-b2d1-ff72ba0bc1bd.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">信息奇点</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">核心数据流的宇宙呼吸声</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 交互音效 -->
+                <div class="glass-card p-8">
+                    <div class="category-icon bg-gradient-to-br from-green-500 to-emerald-500">
+                        <i class="fas fa-gamepad text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-8">交互音效</h3>
+                    <div class="sfx-grid">
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/b77351f9-3d85-4388-a72f-b430bcdb04dc.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">数据冲浪</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">在数据流上滑行的音效</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S003</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6b0b632d-1b0c-486f-8c08-8915f946ca9e.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">Glitch发现</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">靠近Glitch时的数字心跳声</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6d3643bf-7f76-455b-96b5-53c923c461c0.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">噪音节点摧毁</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">节点摧毁时的满足感音效</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S004</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/b8f62e1c-40ff-41f6-a591-98ff683a4881.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">文字弹幕</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">弹幕飞过和击中的音效</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S005</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6bb0f482-7157-4881-8dfe-206e28225143.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">净化区生成</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">Ada创造净化区的柔和音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/d957edee-d198-4aa9-bbd2-664b7af4190e.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">钩爪发射</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">钩爪发射的机械音效</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S006</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/8dc0effe-8bd1-4654-9121-8598dc9d600f.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">滑索摩擦</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">在数据轨道上滑行的音效</p>
+                            <p class="text-xs text-yellow-300">Behavior_ID: S007</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/760bd833-2a3c-4d33-b260-a443205bf99d.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">记忆碎片</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">跳跃到不同类型记忆碎片的音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/1a560498-0e37-4cfe-aaf4-674a6dfa0591.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">场景变化</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">平台重组时的拼图音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基础运动音效 -->
+                <div class="glass-card p-8">
+                    <div class="category-icon bg-gradient-to-br from-yellow-500 to-orange-500">
+                        <i class="fas fa-running text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-center mb-8">基础运动音效</h3>
+                    <div class="sfx-grid">
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6872eb97-d282-4e9a-aee5-3ee1e90cc079.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">跑步</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">节奏性的跑步脚步声</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/c5b1e71f-5bf0-4661-a4bd-9e79d6050fce.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">行走</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">缓慢稳定的行走脚步声</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card p-4 sound-item" data-audio="https://cdn1.genspark.ai/user-upload-image/2/5be5f15d-6751-4adb-aabe-8ff891c14279.mp3">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium">跳跃</span>
+                                <div class="sound-wave"></div>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">起跳和落地的完整音效</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BGM Tab -->
+        <div id="bgm-tab" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-8">
+                    <h3 class="text-xl font-bold mb-6 text-cyan-400">云端城宁静圣咏</h3>
+                    <p class="text-gray-300 mb-4">关卡开始时，音乐是空灵、缥缈的电子圣咏，由合成器人声与柔和的弦乐构成，营造出一种虚假的、程序化的神圣感。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Hymn of the Cloudborne Sanctum.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                    <div class="text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-1"></i>背景音乐类型：电子圣咏
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-red-400">崩塌变奏曲</h3>
+                    <p class="text-gray-300 mb-4">当警报响起时，圣咏被粗暴地打断，转为一段节奏急促、充满不和谐音程的工业电子乐。</p>
+                    <p class="text-gray-300 mb-4">背景中加入了大量采样自数据错误、电流过载的噪音。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Deconstruction Variant.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                    <div class="text-sm text-yellow-400">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>意义指数在本章从100%瞬间清零
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-purple-400">沉淀区的低语</h3>
+                    <p class="text-gray-300 mb-4">整个关卡的BGM是极简的氛围音乐（Dark Ambient）。以低沉的、持续的嗡鸣声为基底。</p>
+                    <p class="text-gray-300 mb-4">当"意义指数"低于20%时，BGM中的嗡鸣会变得更具压迫感，并加入微弱的心跳声。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Whispers of the Sediment.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-pink-400">Meme Riptide</h3>
+                    <p class="text-gray-300 mb-4">一首极其混乱又富有节奏感的 Breakcore / Chiptune 音乐。</p>
+                    <p class="text-gray-300 mb-4">鼓点疯狂、采样源自各种网络经典迷因声效（如Windows XP关机声、诺基亚短信铃声）。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Meme Riptide.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                    <div class="text-sm text-cyan-400 mt-2">
+                        <i class="fas fa-brain mr-1"></i>意义指数越高，主旋律越清晰
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-blue-400">Data Vision Focus</h3>
+                    <p class="text-gray-300 mb-4">当玩家激活"数据视"时，外界混乱的BGM会被强力滤波器压制，变得遥远而模糊。</p>
+                    <p class="text-gray-300 mb-4">取而代之的是一段清晰、宁静的合成器琶音，营造出一种"于喧嚣中入定"的听感。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Data Vision Focus.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-green-400">Möbius Strip</h3>
+                    <p class="text-gray-300 mb-4">一段短小、旋律简单但略带诡异的电子乐循环。</p>
+                    <p class="text-gray-300 mb-4">会精确地在玩家每次回到起点时重置，通过音乐上的重复加强心理上的循环感。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Möbius Strip.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-orange-400">Glitch in the System</h3>
+                    <p class="text-gray-300 mb-4">当玩家与"Glitch"交互并打破循环时，循环的BGM会像卡带一样被搅乱、撕碎。</p>
+                    <p class="text-gray-300 mb-4">然后转变为一段充满力量感和节奏感的、激励人心的电子摇滚。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Glitch in the System.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-red-500">Celestial Wrath</h3>
+                    <p class="text-gray-300 mb-4">一首融合了交响乐、工业金属和电子元素的史诗战斗音乐。</p>
+                    <p class="text-gray-300 mb-4">铜管乐器奏出紧迫的旋律，失真的吉他Riff和密集的鼓点营造出白热化的战斗氛围。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Celestial Wrath.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-emerald-400">Sanctuary</h3>
+                    <p class="text-gray-300 mb-4">当玩家进入"净化区"时，外界激烈的BGM会被完全隔绝。</p>
+                    <p class="text-gray-300 mb-4">取而代之的是一段宁静、空灵的氛围音乐，以水晶音色的合成器和轻柔的女声哼唱为主。</p>
+                    <audio controls class="w-full mt-4">
+                        <source src="BGM/[BGM]Sanctuary.wav" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                    <div class="text-sm text-green-400 mt-2">
+                        <i class="fas fa-heart mr-1"></i>意义指数缓慢恢复
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-indigo-400">Empty Metropolis</h3>
+                    <p class="text-gray-300 mb-4">一首宏大而忧郁的合成器交响乐。主旋律悠扬，但缺乏人声和真实的乐器。</p>
+                    <p class="text-gray-300 mb-4">充满了数字化的冰冷感，偶尔会加入一些遥远的、类似城市风声的电子音效。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                    <div class="text-sm text-blue-400">
+                        <i class="fas fa-temperature-low mr-1"></i>意义指数>70%时旋律更清晰
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-yellow-400">Idol Alert</h3>
+                    <p class="text-gray-300 mb-4">当被"虚拟偶像监视者"发现时，BGM会突然切换为一段急促、高亢的电子警报乐。</p>
+                    <p class="text-gray-300 mb-4">伴随着偶像的循环警告语音，营造出紧张的追逐氛围。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-teal-400">Sea of Dreams</h3>
+                    <p class="text-gray-300 mb-4">一首超现实主义的氛围音乐，以飘渺的合成器音色、缓慢的弦乐构成。</p>
+                    <p class="text-gray-300 mb-4">随机出现的非旋律性音效（如水滴声、风铃声、遥远的钟声）。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-400">Nightmare Surge</h3>
+                    <p class="text-gray-300 mb-4">当"梦魇具象"出现时，BGM会变得低沉、压抑。</p>
+                    <p class="text-gray-300 mb-4">加入不和谐的低音提琴和令人不安的嗡鸣声，节奏变得缓慢而沉重。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-lime-400">Flower Fruit Mountain</h3>
+                    <p class="text-gray-300 mb-4">一首融合了东方民族乐器（如古筝、笛子）和史诗级合成器音色的宏大音乐。</p>
+                    <p class="text-gray-300 mb-4">旋律优美，节奏舒缓，象征着原始秩序与生命力的和谐。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                    <div class="text-sm text-green-400">
+                        <i class="fas fa-leaf mr-1"></i>意义指数越高，人声合唱越清晰
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-violet-400">Truth Revealed</h3>
+                    <p class="text-gray-300 mb-4">当"天道"真相被揭示时，BGM会短暂地变得低沉、带有悬疑感。</p>
+                    <p class="text-gray-300 mb-4">然后逐渐升华为一段充满启示性和决心的旋律。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-rose-400">Heresy Against a Silent God</h3>
+                    <p class="text-gray-300 mb-4">关卡前半段，一首极简的、只有猛烈鼓点和失真贝斯的工业噪音。</p>
+                    <p class="text-gray-300 mb-4">表达着最原始、最纯粹的反抗意志。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <h3 class="text-xl font-bold mb-4 text-amber-400">Elegy for What We Were</h3>
+                    <p class="text-gray-300 mb-4">关卡后半段，音乐转为一首由Arvo Pärt风格的极简主义钢琴构成的圣咏。</p>
+                    <p class="text-gray-300 mb-4">充满了对过往的无限眷恋与对未来的庄严托付。</p>
+                    <div class="text-sm text-red-400 mb-4">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>暂无音频文件
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Music Tab -->
+        <div id="music-tab" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="glass-card p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mr-6">
+                            <i class="fas fa-music text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Null_Start()</h3>
+                            <p class="text-gray-400">片头曲</p>
+                        </div>
+                    </div>
+                    <audio controls class="w-full">
+                        <source src="片头曲/Null_Start().mp3" type="audio/mpeg">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-rose-500 to-red-500 rounded-full flex items-center justify-center mr-6">
+                            <i class="fas fa-heart text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">[白Ada]White Data, Red Rose</h3>
+                            <p class="text-gray-400">白角色主题曲</p>
+                        </div>
+                    </div>
+                    <audio controls class="w-full">
+                        <source src="白-角色主题曲/9月4日白主题曲/[白Ada]White Data, Red Rose.mp3" type="audio/mpeg">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+
+                <div class="glass-card p-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center mr-6">
+                            <i class="fas fa-eye text-white text-3xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Ed-The Observer's Archive</h3>
+                            <p class="text-gray-400">片尾曲</p>
+                        </div>
+                    </div>
+                    <audio controls class="w-full">
+                        <source src="片尾曲/9月3日片尾曲初版/Ed-The Observer's Archive.mp3" type="audio/mpeg">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Tab -->
+        <div id="video-tab" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div class="glass-card p-8">
+                    <h3 class="text-xl font-bold mb-6">9月3日片尾曲初版</h3>
+                    <div class="video-container mb-6">
+                        <video controls poster="片尾曲/9月3日片尾曲初版/9月3日片尾曲初版-封面.jpg">
+                            <source src="片尾曲/9月3日片尾曲初版/9月3日片尾曲初版.mov" type="video/mp4">
+                            您的浏览器不支持视频播放。
+                        </video>
+                    </div>
+                    <p class="text-gray-400 text-sm">片尾曲MV初版作品</p>
+                </div>
+
+                <div class="glass-card p-8">
+                    <h3 class="text-xl font-bold mb-6">9月4日白主题曲</h3>
+                    <div class="video-container mb-6">
+                        <video controls poster="白-角色主题曲/9月4日白主题曲/9月4日白主题曲-封面.jpg">
+                            <source src="白-角色主题曲/9月4日白主题曲/9月4日白主题曲.mov" type="video/mp4">
+                            您的浏览器不支持视频播放。
+                        </video>
+                    </div>
+                    <p class="text-gray-400 text-sm">白角色主题曲MV</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-12 text-gray-400">
+        <div class="container mx-auto px-4">
+            <p class="mb-4">
+                <i class="fas fa-code mr-2"></i>
+                数字世界音视频展示台 | Digital World Audio & Video Showcase
+            </p>
+            <p class="text-sm">共收录 <span class="text-cyan-400 font-bold">19</span> 个专业音效 | <span class="text-purple-400 font-bold">17</span> 个BGM概念 | <span class="text-green-400 font-bold">3</span> 个音乐作品 | <span class="text-orange-400 font-bold">2</span> 个MV视频</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    button.classList.add('active');
+
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    // Show selected tab content
+                    const tabId = button.getAttribute('data-tab') + '-tab';
+                    const targetTab = document.getElementById(tabId);
+                    if (targetTab) {
+                        targetTab.classList.add('active');
+                    }
+                });
+            });
+
+            // Download functionality
+            const downloadButtons = document.querySelectorAll('.download-btn');
+
+            downloadButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation(); // 防止触发父元素的点击事件
+
+                    const filename = this.getAttribute('data-filename');
+                    const soundItem = this.closest('.sound-item');
+                    const audioSrc = soundItem.getAttribute('data-audio');
+
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    link.href = audioSrc;
+                    link.download = filename;
+                    link.style.display = 'none';
+
+                    // 添加到DOM并触发下载
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // 显示下载提示
+                    this.innerHTML = '<i class="fas fa-check"></i>';
+                    this.classList.add('text-green-400');
+
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-download"></i>';
+                        this.classList.remove('text-green-400');
+                    }, 2000);
+                });
+            });
+
+            // Audio playback functionality
+            let currentAudio = null;
+            let currentSoundItem = null;
+
+            document.querySelectorAll('.sound-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const audioSrc = this.getAttribute('data-audio');
+
+                    // Stop current audio if playing
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio.currentTime = 0;
+                        if (currentSoundItem) {
+                            currentSoundItem.classList.remove('playing');
+                        }
+                    }
+
+                    // If clicking the same item, just stop
+                    if (currentSoundItem === this && currentAudio) {
+                        currentAudio = null;
+                        currentSoundItem = null;
+                        return;
+                    }
+
+                    // Create new audio
+                    currentAudio = new Audio(audioSrc);
+                    currentSoundItem = this;
+
+                    // Add playing class
+                    this.classList.add('playing');
+
+                    // Update progress bar
+                    const progressFill = this.querySelector('.progress-fill');
+                    currentAudio.addEventListener('timeupdate', () => {
+                        const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+                        progressFill.style.width = progress + '%';
+                    });
+
+                    // Handle audio end
+                    currentAudio.addEventListener('ended', () => {
+                        this.classList.remove('playing');
+                        progressFill.style.width = '0%';
+                        currentAudio = null;
+                        currentSoundItem = null;
+                    });
+
+                    // Play audio
+                    currentAudio.play().catch(error => {
+                        console.error('播放失败:', error);
+                        this.classList.remove('playing');
+                        alert('音频播放失败，请检查文件是否存在');
+                    });
+                });
+            });
+        });
+
+        // Keyboard shortcuts (outside DOMContentLoaded for immediate availability)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const currentAudio = document.querySelector('.sound-item.playing audio');
+                if (currentAudio) {
+                    if (currentAudio.paused) {
+                        currentAudio.play();
+                    } else {
+                        currentAudio.pause();
+                    }
+                }
+            }
+        });
+
+        // Page visibility change
+        document.addEventListener('visibilitychange', function() {
+            const playingAudio = document.querySelector('.sound-item.playing audio');
+            if (document.hidden && playingAudio && !playingAudio.paused) {
+                playingAudio.pause();
+            }
+        });
+    </script>
+</body>
+</html>

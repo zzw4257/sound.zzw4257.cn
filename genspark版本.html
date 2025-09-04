@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字世界音效控制台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        .sound-card {
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sound-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .playing {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+        .category-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+        }
+        .glitch-text {
+            color: #00ffff;
+            text-shadow: 2px 2px 0px #ff00ff, -2px -2px 0px #ffff00;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-bold mb-4 glitch-text">
+                <i class="fas fa-volume-up mr-4"></i>
+                数字世界音效控制台
+            </h1>
+            <p class="text-xl text-gray-300">Digital World Sound Effects Console</p>
+            <div class="mt-4 flex justify-center space-x-4">
+                <button id="stopAll" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition duration-300">
+                    <i class="fas fa-stop mr-2"></i>停止所有音效
+                </button>
+                <button id="playAll" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg transition duration-300">
+                    <i class="fas fa-play mr-2"></i>播放所有音效
+                </button>
+            </div>
+        </header>
+
+        <!-- 环境音效 -->
+        <section class="mb-12">
+            <div class="category-header rounded-t-lg p-6 mb-0">
+                <h2 class="text-3xl font-bold flex items-center">
+                    <i class="fas fa-mountain mr-4 text-blue-400"></i>
+                    环境音效 (Environmental SFX)
+                </h2>
+                <p class="text-gray-300 mt-2">场景环境和氛围音效</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-gray-800 rounded-b-lg">
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">数据碎裂声</h3>
+                    <p class="text-sm text-gray-200 mb-4">平台崩塌时的尖锐数字音效</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/9babd296-a909-43a3-be45-5cf2f14d23a5.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">电弧</h3>
+                    <p class="text-sm text-gray-200 mb-2">裸露数据线缆间的危险电弧</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: E003</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/ba2999c6-947f-459e-aac6-a4fa11d870e2.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">数据噪音</h3>
+                    <p class="text-sm text-gray-200 mb-2">触碰数据噪音池的刺耳音效</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S001</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/728eaddd-686d-4518-ada8-d4c64b768181.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">代码雾气</h3>
+                    <p class="text-sm text-gray-200 mb-2">穿过代码雾气时的编程语言耳语</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S002</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/37d998e1-ba7f-45d6-9fd0-38699cf08e5b.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">广告弹窗</h3>
+                    <p class="text-sm text-gray-200 mb-4">烦人的广告弹窗音效</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/881374f2-a0df-4042-81e7-2b2e99b467a1.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">数据植被</h3>
+                    <p class="text-sm text-gray-200 mb-4">穿过数据植被的电子质感音效</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6bc43549-d442-4e48-a929-d123d87d80e4.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">信息奇点</h3>
+                    <p class="text-sm text-gray-200 mb-4">核心数据流的宇宙呼吸声</p>
+                    <button class="play-btn w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/e8ee041a-d2cf-4b66-b2d1-ff72ba0bc1bd.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 交互音效 -->
+        <section class="mb-12">
+            <div class="category-header rounded-t-lg p-6 mb-0">
+                <h2 class="text-3xl font-bold flex items-center">
+                    <i class="fas fa-gamepad mr-4 text-green-400"></i>
+                    交互音效 (Interactive SFX)
+                </h2>
+                <p class="text-gray-300 mt-2">玩家操作和游戏机制音效</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-gray-800 rounded-b-lg">
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">数据冲浪</h3>
+                    <p class="text-sm text-gray-200 mb-2">在数据流上滑行的音效</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S003</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/b77351f9-3d85-4388-a72f-b430bcdb04dc.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">Glitch发现</h3>
+                    <p class="text-sm text-gray-200 mb-4">靠近Glitch时的数字心跳声</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6b0b632d-1b0c-486f-8c08-8915f946ca9e.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">噪音节点摧毁</h3>
+                    <p class="text-sm text-gray-200 mb-2">节点摧毁时的满足感音效</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S004</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6d3643bf-7f76-455b-96b5-53c923c461c0.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">文字弹幕</h3>
+                    <p class="text-sm text-gray-200 mb-2">弹幕飞过和击中的音效</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S005</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/b8f62e1c-40ff-41f6-a591-98ff683a4881.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">净化区生成</h3>
+                    <p class="text-sm text-gray-200 mb-4">Ada创造净化区的柔和音效</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6bb0f482-7157-4881-8dfe-206e28225143.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">钩爪发射</h3>
+                    <p class="text-sm text-gray-200 mb-2">钩爪发射的机械音效</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S006</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/d957edee-d198-4aa9-bbd2-664b7af4190e.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">滑索摩擦</h3>
+                    <p class="text-sm text-gray-200 mb-2">在数据轨道上滑行的音效</p>
+                    <p class="text-xs text-yellow-300 mb-4">Behavior_ID: S007</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/8dc0effe-8bd1-4654-9121-8598dc9d600f.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">记忆碎片</h3>
+                    <p class="text-sm text-gray-200 mb-4">跳跃到不同类型记忆碎片的音效</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/760bd833-2a3c-4d33-b260-a443205bf99d.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">场景变化</h3>
+                    <p class="text-sm text-gray-200 mb-4">平台重组时的拼图音效</p>
+                    <button class="play-btn w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/1a560498-0e37-4cfe-aaf4-674a6dfa0591.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 基础运动音效 -->
+        <section class="mb-12">
+            <div class="category-header rounded-t-lg p-6 mb-0">
+                <h2 class="text-3xl font-bold flex items-center">
+                    <i class="fas fa-running mr-4 text-yellow-400"></i>
+                    基础运动音效 (Basic Movement SFX)
+                </h2>
+                <p class="text-gray-300 mt-2">角色移动和基础动作音效</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 bg-gray-800 rounded-b-lg">
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">跑步</h3>
+                    <p class="text-sm text-gray-200 mb-4">节奏性的跑步脚步声</p>
+                    <button class="play-btn w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/6872eb97-d282-4e9a-aee5-3ee1e90cc079.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">行走</h3>
+                    <p class="text-sm text-gray-200 mb-4">缓慢稳定的行走脚步声</p>
+                    <button class="play-btn w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/c5b1e71f-5bf0-4661-a4bd-9e79d6050fce.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+
+                <div class="sound-card rounded-lg p-6 text-white">
+                    <h3 class="text-xl font-bold mb-2">跳跃</h3>
+                    <p class="text-sm text-gray-200 mb-4">起跳和落地的完整音效</p>
+                    <button class="play-btn w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-lg transition duration-300" data-audio="https://cdn1.genspark.ai/user-upload-image/2/5be5f15d-6751-4adb-aabe-8ff891c14279.mp3">
+                        <i class="fas fa-play mr-2"></i>播放
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-gray-400 mt-12">
+            <p class="mb-2"><i class="fas fa-code mr-2"></i>数字世界音效控制台</p>
+            <p class="text-sm">共收录 <span class="text-cyan-400 font-bold">19</span> 个专业音效</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentAudio = null;
+        let allAudios = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const playButtons = document.querySelectorAll('.play-btn');
+            const stopAllBtn = document.getElementById('stopAll');
+            const playAllBtn = document.getElementById('playAll');
+
+            // 收集所有音频URL
+            playButtons.forEach(btn => {
+                allAudios.push(btn.getAttribute('data-audio'));
+            });
+
+            playButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const audioUrl = this.getAttribute('data-audio');
+                    const card = this.closest('.sound-card');
+                    
+                    // 停止当前播放的音频
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio.currentTime = 0;
+                        // 移除之前的playing状态
+                        document.querySelectorAll('.sound-card').forEach(c => {
+                            c.classList.remove('playing');
+                        });
+                        document.querySelectorAll('.play-btn').forEach(b => {
+                            b.innerHTML = '<i class="fas fa-play mr-2"></i>播放';
+                        });
+                    }
+                    
+                    // 如果点击的是同一个按钮，则停止播放
+                    if (currentAudio && currentAudio.src === audioUrl) {
+                        currentAudio = null;
+                        return;
+                    }
+                    
+                    // 创建新的音频对象
+                    currentAudio = new Audio(audioUrl);
+                    
+                    // 添加播放状态
+                    card.classList.add('playing');
+                    this.innerHTML = '<i class="fas fa-pause mr-2"></i>播放中...';
+                    
+                    // 播放音频
+                    currentAudio.play().catch(error => {
+                        console.error('播放失败:', error);
+                        alert('音频播放失败，请检查网络连接');
+                    });
+                    
+                    // 音频结束时的处理
+                    currentAudio.addEventListener('ended', function() {
+                        card.classList.remove('playing');
+                        button.innerHTML = '<i class="fas fa-play mr-2"></i>播放';
+                        currentAudio = null;
+                    });
+                });
+            });
+
+            // 停止所有音效
+            stopAllBtn.addEventListener('click', function() {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                    currentAudio = null;
+                }
+                
+                document.querySelectorAll('.sound-card').forEach(c => {
+                    c.classList.remove('playing');
+                });
+                document.querySelectorAll('.play-btn').forEach(b => {
+                    b.innerHTML = '<i class="fas fa-play mr-2"></i>播放';
+                });
+            });
+
+            // 播放所有音效（示例功能，实际可能需要更复杂的逻辑）
+            playAllBtn.addEventListener('click', function() {
+                alert('此功能将依次播放所有音效，请注意音量！');
+                let index = 0;
+                
+                function playNext() {
+                    if (index < allAudios.length) {
+                        const audio = new Audio(allAudios[index]);
+                        audio.play().then(() => {
+                            audio.addEventListener('ended', () => {
+                                index++;
+                                setTimeout(playNext, 500); // 间隔500ms播放下一个
+                            });
+                        }).catch(error => {
+                            console.error('播放失败:', error);
+                            index++;
+                            setTimeout(playNext, 500);
+                        });
+                    }
+                }
+                
+                playNext();
+            });
+        });
+
+        // 页面可见性变化时暂停音频
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+            }
+        });
+    </script>
+</body>
+</html>
